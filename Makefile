@@ -2,7 +2,7 @@
 # не файлы, а команды к выполнению
 
 # Что проверять
-SRC = authapp tasks tasks_project
+SRC = .github authapp integration_tests tasks scripts tasks_project
 
 test:  ## Запуск django тестов
 	python manage.py test
