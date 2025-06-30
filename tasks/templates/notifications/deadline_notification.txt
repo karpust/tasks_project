@@ -1,0 +1,5 @@
+Привет, {{ username }}!
+
+Приближается дедлайн!
+
+Задача "{{ task.title }}" истекает {{ task.deadline|date:"d.m.Y H:i" }}.

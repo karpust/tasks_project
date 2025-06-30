@@ -1,0 +1,31 @@
+[tool.black]
+line-length = 88
+target-version = ["py310"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+exclude = [
+  ".git",
+  "__pycache__",
+  "migrations",
+  ".venv",
+  "env",
+  "htmlcov",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]  # E = style errors, F = flakes, I = import order
+
+[tool.coverage.run]
+omit = ["*/migrations/*", "*/tests/*", "*/__init__.py", "manage.py"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "raise NotImplementedError",
+    "def __str__",
+    "if self.debug"
+]
+precision = 2
+fail_under = 80

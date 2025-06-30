@@ -1,0 +1,36 @@
+repos:
+  # Black – автоформатирование кода
+  - repo: https://github.com/psf/black
+    rev: 25.1.0  # версия black
+    hooks:
+      - id: black
+        name: Black Formatter
+        language_version: python3.10
+
+  # Ruff – линтинг, включая flake8/isort/Pyflakes
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.12.0 # версия ruff
+    hooks:
+      - id: ruff
+        args: ["--fix"]
+
+  # Форматирует длинные докстринги и комментарии
+  - repo: https://github.com/myint/docformatter
+    rev: v1.7.7
+    hooks:
+      - id: docformatter
+        args: [
+          "--in-place",
+          "--wrap-summaries=88",
+          "--wrap-descriptions=88",
+          "--recursive"
+        ]
+        additional_dependencies: [ "docformatter" ]
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: end-of-file-fixer  # в конце файла д б пустая строка
+      - id: trailing-whitespace  # удалит пробелы в конце строк
+      - id: check-added-large-files  # защищает от добавления медиа и дампов в коммит
+      - id: debug-statements

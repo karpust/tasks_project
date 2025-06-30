@@ -1,0 +1,1462 @@
+openapi: 3.0.3
+info:
+  title: Your Project API
+  version: 1.0.0
+  description: Your project description
+paths:
+  /api/auth/change_password/{uid}/{token}/:
+    post:
+      operationId: api_auth_change_password_create
+      description: Изменяет пароль пользователя, если передан корректный UID и токен
+        восстановления.
+      summary: Смена пароля по ссылке восстановления
+      parameters:
+      - in: path
+        name: token
+        schema:
+          type: string
+        description: Токен восстановления пароля
+        required: true
+      - in: path
+        name: uid
+        schema:
+          type: string
+        description: UID пользователя в формате base64
+        required: true
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePassword'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ChangePassword'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ChangePassword'
+        required: true
+      security:
+      - CookieJWT: []
+      - {}
+      responses:
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+              examples:
+                Ошибка:НедействительныйТокен:
+                  value:
+                    detail: Недействительный токен.
+                  summary: 'Ошибка: недействительный токен'
+                Ошибка:НедействительнаяСсылка:
+                  value:
+                    detail: Недействительная ссылка.
+                  summary: 'Ошибка: недействительная ссылка'
+          description: Недействительный токен или ссылка
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+              examples:
+                ОшибкаАутентификации:
+                  value:
+                    detail: Authentication credentials were not provided.
+                  summary: Ошибка аутентификации
+          description: Данные для аутентификации не предоставлены
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+              examples:
+                УспешныйЗапрос:
+                  value:
+                    message: Пароль успешно изменен.
+                  summary: Успешный запрос
+          description: Пароль успешно изменен
+  /api/auth/confirm_register/:
+    get:
+      operationId: api_auth_confirm_register_retrieve
+      description: Используется для подтверждения регистрации пользователя. Ожидает
+        токен подтверждения в query-параметрах запроса. Если токен действителен, активирует
+        пользователя. Если токен отсутствует, недействителен или пользователь не найден
+        — возвращает ошибку.
+      summary: Подтверждение регистрации пользователя по токену
+      parameters:
+      - in: query
+        name: token
+        schema:
+          type: string
+        description: Токен подтверждения email, полученный на почту. Если не указан
+          - вернется ошибка.
+      tags:
+      - Authentication
+      security:
+      - CookieJWT: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfirmRegisterMessage'
+              examples:
+                УспешныйЗапрос:
+                  value:
+                    message: Email is successfully confirmed. You can enter the system.
+                  summary: Успешный запрос
+          description: Успешное подтверждение регистрации
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfirmRegisterError'
+              examples:
+                Ошибка:ОтсутствуетТокен:
+                  value:
+                    detail: The link has invalid token.
+                    action: Request a new letter of confirmation by the link below.
+                    resend_url: http://127.0.0.1:8000/api/auth/repeat_confirm_register
+                  summary: 'Ошибка: отсутствует токен'
+          description: 'Ошибка подтверждения: токен отсутствует, недействителен или
+            email уже подтвержден'
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfirmRegisterError404'
+          description: Пользователь не найден
+  /api/auth/login/:
+    post:
+      operationId: api_auth_login_create
+      description: Принимает имя пользователя и пароль, аутентифицирует пользователя
+        и устанавливает JWT access и refresh токены в HttpOnly cookies.В режиме разработки
+        (DEBUG=True) токены также возвращаются в теле ответа для тестирования.
+      summary: Логин пользователя
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Login'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Login'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Login'
+        required: true
+      security:
+      - CookieJWT: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+              examples:
+                УспешныйОтвет:
+                  value:
+                    message: Login successful
+                  summary: Успешный ответ
+          description: Успешная авторизация. В режиме DEBUG токены и в теле ответа.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+              examples:
+                Ошибка-НеверныеДанные:
+                  value:
+                    detail: Invalid credentials
+                  summary: Ошибка - неверные данные
+                Ошибка-ПользовательУжеВошел:
+                  value:
+                    detail: Вы уже вошли в систему. Выйдите перед повторным входом.
+                  summary: Ошибка - пользователь уже вошел
+          description: Неверные учетные данные или пользователь уже вошел в систему.
+  /api/auth/logout/:
+    post:
+      operationId: api_auth_logout_create
+      description: Удаляет JWT токены (access и refresh) из cookies и завершает сессию
+        пользователя.
+      summary: Выход пользователя
+      tags:
+      - Authentication
+      security:
+      - CookieJWT: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+              examples:
+                УспешныйВыход:
+                  value:
+                    message: Выход выполнен
+                  summary: Успешный выход
+          description: Успешный выход и удаление токенов
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+              examples:
+                ОшибкаАутентификации:
+                  value:
+                    detail: Authentication credentials were not provided.
+                  summary: Ошибка аутентификации
+          description: Не переданы данные для аутентификации
+  /api/auth/refresh-token/:
+    post:
+      operationId: api_auth_refresh_token_create
+      description: 'Использует refresh-токен из cookies для генерации нового access-токена.
+        Если refresh отсутствует или недействителен — возвращается 401. '
+      summary: Обновление access-токена
+      tags:
+      - Authentication
+      security:
+      - CookieJWT: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+              examples:
+                УспешныйОтвет:
+                  value:
+                    message: Токен обновлен
+                  summary: Успешный ответ
+          description: Успешное обновление access-токена
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+              examples:
+                Ошибка:ОтсутствуетТокенОбновления:
+                  value:
+                    detail: Токен обновления отсутствует
+                  summary: 'Ошибка: отсутствует токен обновления'
+                Ошибка:НедействительныйТокенОбновления:
+                  value:
+                    detail: Недействительный refresh-токен
+                  summary: 'Ошибка: недействительный токен обновления'
+          description: Ошибка refresh-токена
+  /api/auth/register/:
+    post:
+      operationId: api_auth_register_create
+      description: Создает нового пользователя и отправляет ссылку на email для подтверждения
+        регистрации.
+      summary: Регистрация пользователя
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Register'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Register'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Register'
+        required: true
+      security:
+      - CookieJWT: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+              examples:
+                ПримерУдачногоВыполнения:
+                  value:
+                    message: Спасибо за регистрацию! На ваш email было отправлено
+                      письмо-подтверждение. Пожалуйста, пройдите по ссылке из письма.
+                  summary: Пример удачного выполнения
+          description: Успешная регистрация
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+              examples:
+                ПримерОшибок:
+                  value:
+                    username:
+                    - Ensure this field has at least 3 characters.
+                    email:
+                    - This field must be unique.
+                    password:
+                    - This password is too short. It must contain at least 8 characters.
+                  summary: Пример ошибок
+          description: Ошибка регистрации
+  /api/auth/repeat_confirm_register:
+    post:
+      operationId: api_auth_repeat_confirm_register_create
+      description: 'Пользователь, не подтвердивший email с первого раза, переходит
+        по ссылке, вводит имя и пароль, запрашивая повторное подтверждение регистрации. '
+      summary: Запрос на повторное подтверждение email
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RepeatConfirmRegister'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RepeatConfirmRegister'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RepeatConfirmRegister'
+        required: true
+      security:
+      - CookieJWT: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+              examples:
+                ПримерУдачногоВыполнения:
+                  value:
+                    message: На ваш email было отправлено письмо-подтверждение. Пожалуйста,
+                      пройдите по ссылке из письма.
+                  summary: Пример удачного выполнения
+          description: Успешный запрос на повторное подтверждение
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+              examples:
+                НеверныеДанные:
+                  value:
+                    detail: Неверный логин или пароль
+                  summary: Неверные данные
+                ПодтверждениеУжеВыполнено:
+                  value:
+                    detail: Email has already been confirmed. You can enter the system.
+                  summary: Подтверждение уже выполнено
+          description: Ошибка запроса на повторное подтверждение
+  /api/auth/reset_password/:
+    post:
+      operationId: api_auth_reset_password_create
+      description: Этот эндпоинт генерирует уникальную ссылку для сброса пароля. Отправляется
+        email с инструкциями.
+      summary: Запрос на сброс пароля
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPassword'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ResetPassword'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ResetPassword'
+        required: true
+      security:
+      - CookieJWT: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+              examples:
+                УспешныйЗапрос:
+                  value:
+                    message: Если email существует, мы отправили ссылку для сброса
+                      пароля.
+                  summary: Успешный запрос
+                УспешныйЗапрос:НесуществующийEmail:
+                  value:
+                    message: Если email существует, мы отправили ссылку для сброса
+                      пароля.
+                  summary: 'Успешный запрос: несуществующий email'
+          description: Успешный запрос, даже если email не существует
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+              examples:
+                Ошибка:НевалидныйEmail:
+                  value:
+                    email:
+                    - Enter a valid email address.
+                  summary: 'Ошибка: невалидный email'
+          description: Ошибка в поле email
+  /groups/:
+    get:
+      operationId: groups_list
+      description: API endpoint that allows groups to be viewed or edited.
+      tags:
+      - groups
+      security:
+      - CookieJWT: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Group'
+          description: ''
+    post:
+      operationId: groups_create
+      description: API endpoint that allows groups to be viewed or edited.
+      tags:
+      - groups
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Group'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Group'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Group'
+        required: true
+      security:
+      - CookieJWT: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Group'
+          description: ''
+  /groups/{id}/:
+    get:
+      operationId: groups_retrieve
+      description: API endpoint that allows groups to be viewed or edited.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this group.
+        required: true
+      tags:
+      - groups
+      security:
+      - CookieJWT: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Group'
+          description: ''
+    put:
+      operationId: groups_update
+      description: API endpoint that allows groups to be viewed or edited.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this group.
+        required: true
+      tags:
+      - groups
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Group'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Group'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Group'
+        required: true
+      security:
+      - CookieJWT: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Group'
+          description: ''
+    patch:
+      operationId: groups_partial_update
+      description: API endpoint that allows groups to be viewed or edited.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this group.
+        required: true
+      tags:
+      - groups
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedGroup'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedGroup'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedGroup'
+      security:
+      - CookieJWT: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Group'
+          description: ''
+    delete:
+      operationId: groups_destroy
+      description: API endpoint that allows groups to be viewed or edited.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this group.
+        required: true
+      tags:
+      - groups
+      security:
+      - CookieJWT: []
+      responses:
+        '204':
+          description: No response body
+  /tasks/:
+    get:
+      operationId: tasks_list
+      description: |-
+        Возвращает список задач с возможностью **фильтрации** и **сортировки**.
+
+        ### Фильтрация:
+        - `status_display`: статус задачи (`to_do`, `in_progress`, `done`)
+        - `priority`: числовой приоритет (чем меньше — тем важнее)
+        - `deadline_before`, `deadline_after`: дедлайн до/после указанной даты
+        - `executor`: имя исполнителя (можно несколько)
+        - `owner`: имя автора задачи
+        - `tags`: название тега (можно несколько)
+        - `search`: поик по частичному совпадению (по заголовку, описанию и т.п.)
+
+        ### Сортировка (`?ordering=`):
+        - `urgency`: задачи с ближайшими дедлайнами первыми
+        - `-urgency`: задачи с отдалёнными дедлайнами первыми
+        - `priority`, `deadline`, `status`
+
+        Можно указывать несколько полей: `?ordering=priority,-urgency,status,deadline`
+
+        ### Примеры:
+        - `/api/tasks/?ordering=priority,-urgency`
+        - `/api/tasks/?status=todo&ordering=-deadline`
+      summary: Получение списка задач
+      parameters:
+      - in: query
+        name: category
+        schema:
+          type: string
+        description: Фильтрация задач по названию категории.
+      - in: query
+        name: deadline_after
+        schema:
+          type: string
+          format: date-time
+        description: Фильтрация задач с дедлайном **после** выбранной даты.
+      - in: query
+        name: deadline_before
+        schema:
+          type: string
+          format: date-time
+        description: Фильтрация задач с дедлайном **до** выбранной даты.
+      - in: query
+        name: executor
+        schema:
+          type: array
+          items:
+            type: string
+        description: Фильтрация задач по имени исполнителя.
+      - in: query
+        name: ordering
+        schema:
+          type: string
+        description: 'Сортировка задач по полям: `urgency`, `priority`, `status`,
+          `deadline`. С возможностью комбинировать.'
+      - in: query
+        name: owner
+        schema:
+          type: string
+        description: Фильтрация задач по имени создателя.
+      - in: query
+        name: priority_display
+        schema:
+          type: string
+          enum:
+          - high
+          - low
+          - medium
+        description: Фильтрация по приоритету задачи (`low`, `medium`, `high`).
+      - in: query
+        name: search
+        schema:
+          type: string
+        description: Фильтрация задач по частичному совпадению в названии, описании,
+          комментарии, теге или категории.
+      - in: query
+        name: status_display
+        schema:
+          type: string
+          enum:
+          - done
+          - in_progress
+          - to_do
+        description: Фильтрация по статусу выполнения задачи (`to_do`, `in_progress`,
+          `done`).
+      - in: query
+        name: tags
+        schema:
+          type: array
+          items:
+            type: string
+        description: Фильтрация задач по названию тэга.
+      tags:
+      - tasks
+      security:
+      - CookieJWT: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Task'
+          description: ''
+    post:
+      operationId: tasks_create
+      description: Создаёт новую задачу. Требует данные по заголовку, описанию, дедлайну
+        и приоритету.
+      summary: Создание задачи
+      tags:
+      - tasks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Task'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Task'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Task'
+        required: true
+      security:
+      - CookieJWT: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+          description: ''
+  /tasks/{id}/:
+    get:
+      operationId: tasks_retrieve
+      description: Возвращает задачу по её идентификатору.
+      summary: Получение задачи по ID
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Задача.
+        required: true
+      tags:
+      - tasks
+      security:
+      - CookieJWT: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+          description: ''
+    put:
+      operationId: tasks_update
+      description: Полностью обновляет задачу (все поля перезаписываются).
+      summary: Обновление задачи
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Задача.
+        required: true
+      tags:
+      - tasks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Task'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Task'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Task'
+        required: true
+      security:
+      - CookieJWT: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+          description: ''
+    patch:
+      operationId: tasks_partial_update
+      description: Обновляет только переданные поля задачи.
+      summary: Частичное обновление задачи
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Задача.
+        required: true
+      tags:
+      - tasks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedTask'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedTask'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedTask'
+      security:
+      - CookieJWT: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+          description: ''
+    delete:
+      operationId: tasks_destroy
+      description: Удаляет задачу по ID.
+      summary: Удаление задачи
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Задача.
+        required: true
+      tags:
+      - tasks
+      security:
+      - CookieJWT: []
+      responses:
+        '204':
+          description: No response body
+  /tasks/{task_pk}/comments/:
+    get:
+      operationId: tasks_comments_list
+      parameters:
+      - in: path
+        name: task_pk
+        schema:
+          type: integer
+        required: true
+      tags:
+      - tasks
+      security:
+      - CookieJWT: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Comment'
+          description: ''
+    post:
+      operationId: tasks_comments_create
+      parameters:
+      - in: path
+        name: task_pk
+        schema:
+          type: integer
+        required: true
+      tags:
+      - tasks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Comment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Comment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Comment'
+        required: true
+      security:
+      - CookieJWT: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+          description: ''
+  /tasks/{task_pk}/comments/{id}/:
+    get:
+      operationId: tasks_comments_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Комментарий.
+        required: true
+      - in: path
+        name: task_pk
+        schema:
+          type: integer
+        required: true
+      tags:
+      - tasks
+      security:
+      - CookieJWT: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+          description: ''
+    put:
+      operationId: tasks_comments_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Комментарий.
+        required: true
+      - in: path
+        name: task_pk
+        schema:
+          type: integer
+        required: true
+      tags:
+      - tasks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Comment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Comment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Comment'
+        required: true
+      security:
+      - CookieJWT: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+          description: ''
+    patch:
+      operationId: tasks_comments_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Комментарий.
+        required: true
+      - in: path
+        name: task_pk
+        schema:
+          type: integer
+        required: true
+      tags:
+      - tasks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedComment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedComment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedComment'
+      security:
+      - CookieJWT: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+          description: ''
+    delete:
+      operationId: tasks_comments_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Комментарий.
+        required: true
+      - in: path
+        name: task_pk
+        schema:
+          type: integer
+        required: true
+      tags:
+      - tasks
+      security:
+      - CookieJWT: []
+      responses:
+        '204':
+          description: No response body
+  /users/:
+    get:
+      operationId: users_list
+      description: API endpoint that allows authapp to be viewed or edited.
+      tags:
+      - users
+      security:
+      - CookieJWT: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+          description: ''
+    post:
+      operationId: users_create
+      description: API endpoint that allows authapp to be viewed or edited.
+      tags:
+      - users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/User'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      security:
+      - CookieJWT: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /users/{id}/:
+    get:
+      operationId: users_retrieve
+      description: API endpoint that allows authapp to be viewed or edited.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this user.
+        required: true
+      tags:
+      - users
+      security:
+      - CookieJWT: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    put:
+      operationId: users_update
+      description: API endpoint that allows authapp to be viewed or edited.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this user.
+        required: true
+      tags:
+      - users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/User'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      security:
+      - CookieJWT: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    patch:
+      operationId: users_partial_update
+      description: API endpoint that allows authapp to be viewed or edited.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this user.
+        required: true
+      tags:
+      - users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUser'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUser'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUser'
+      security:
+      - CookieJWT: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    delete:
+      operationId: users_destroy
+      description: API endpoint that allows authapp to be viewed or edited.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this user.
+        required: true
+      tags:
+      - users
+      security:
+      - CookieJWT: []
+      responses:
+        '204':
+          description: No response body
+components:
+  schemas:
+    ChangePassword:
+      type: object
+      description: Сериализатор для смены пароля по ссылке восстановления.
+      properties:
+        new_password:
+          type: string
+          writeOnly: true
+          description: Новый пароль
+        confirm_password:
+          type: string
+          writeOnly: true
+          description: Подтверждение нового пароля
+      required:
+      - confirm_password
+      - new_password
+    Comment:
+      type: object
+      description: Сериализатор для модели комментариев
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        task:
+          type: integer
+          readOnly: true
+        text:
+          type: string
+          title: Текст комментария
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Время создания
+      required:
+      - created_at
+      - id
+      - task
+      - text
+    ConfirmRegisterError:
+      type: object
+      properties:
+        detail:
+          type: string
+        action:
+          type: string
+        resend_url:
+          type: string
+          description: Ссылка для подтвердения email
+    ConfirmRegisterError404:
+      type: object
+      properties:
+        detail:
+          type: string
+      required:
+      - detail
+    ConfirmRegisterMessage:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+      - message
+    GenericResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Успешное выполнение запроса
+        detail:
+          type: string
+          description: Ошибка выполнения запроса
+        action:
+          type: string
+          description: Действие пользователя
+        username:
+          type: array
+          items:
+            type: string
+            format: email
+        email:
+          type: array
+          items:
+            type: string
+            format: email
+        password:
+          type: array
+          items:
+            type: string
+            format: email
+          writeOnly: true
+    Group:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+        name:
+          type: string
+          maxLength: 150
+      required:
+      - name
+      - url
+    Login:
+      type: object
+      description: Сериализатор для логина пользователя.
+      properties:
+        username:
+          type: string
+          description: Имя пользователя
+        password:
+          type: string
+          description: Пароль
+      required:
+      - password
+      - username
+    PatchedComment:
+      type: object
+      description: Сериализатор для модели комментариев
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        task:
+          type: integer
+          readOnly: true
+        text:
+          type: string
+          title: Текст комментария
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Время создания
+    PatchedGroup:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+        name:
+          type: string
+          maxLength: 150
+    PatchedTask:
+      type: object
+      description: Сериализатор для модели задач
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          title: Название задачи
+          description: Название задачи
+          maxLength: 255
+        description:
+          type: string
+          nullable: true
+          title: Описание задачи
+          description: Описание задачи
+        deadline:
+          type: string
+          format: date-time
+          title: Срок выполнения
+          description: Срок выполнения
+        executor:
+          type: array
+          items:
+            type: integer
+            title: Исполнитель задачи
+          title: Исполнитель задачи
+          description: Список исполнителей задачи
+        category:
+          type: string
+          description: Название категории
+        tags:
+          type: string
+          description: 'Список тэгов. Принимает массив строк, например: [''API'',
+            ''DRF'']'
+        priority:
+          type: string
+          description: 'Приоритет задачи, допустимые значения: low, medium, high'
+        status:
+          type: string
+          description: 'Статус задачи, допустимые значения: to_do, in_progress, done'
+    PatchedUser:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+        username:
+          type: string
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          title: Email address
+          maxLength: 254
+        groups:
+          type: array
+          items:
+            type: string
+            format: uri
+          description: The groups this user belongs to. A user will get all permissions
+            granted to each of their groups.
+    Register:
+      type: object
+      description: Сериализатор для регистрации пользователя и отправления ссылки
+        подтверждения на email.
+      properties:
+        username:
+          type: string
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 30
+          minLength: 3
+        email:
+          type: string
+          format: email
+          description: Email
+        password:
+          type: string
+          writeOnly: true
+          maxLength: 128
+      required:
+      - email
+      - password
+      - username
+    RepeatConfirmRegister:
+      type: object
+      description: Сериализатор для повторного запроса ссылки на подтверждение регистрации.
+      properties:
+        username:
+          type: string
+          description: Имя пользователя
+        password:
+          type: string
+          description: Пароль
+      required:
+      - password
+      - username
+    ResetPassword:
+      type: object
+      description: Сериализатор для запроса на email ссылки на смену пароля.
+      properties:
+        email:
+          type: string
+          format: email
+          description: Email для сброса пароля
+      required:
+      - email
+    Task:
+      type: object
+      description: Сериализатор для модели задач
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          title: Название задачи
+          description: Название задачи
+          maxLength: 255
+        description:
+          type: string
+          nullable: true
+          title: Описание задачи
+          description: Описание задачи
+        deadline:
+          type: string
+          format: date-time
+          title: Срок выполнения
+          description: Срок выполнения
+        executor:
+          type: array
+          items:
+            type: integer
+            title: Исполнитель задачи
+          title: Исполнитель задачи
+          description: Список исполнителей задачи
+        category:
+          type: string
+          description: Название категории
+        tags:
+          type: string
+          description: 'Список тэгов. Принимает массив строк, например: [''API'',
+            ''DRF'']'
+        priority:
+          type: string
+          description: 'Приоритет задачи, допустимые значения: low, medium, high'
+        status:
+          type: string
+          description: 'Статус задачи, допустимые значения: to_do, in_progress, done'
+      required:
+      - executor
+      - id
+      - priority
+      - status
+      - title
+    User:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+        username:
+          type: string
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          title: Email address
+          maxLength: 254
+        groups:
+          type: array
+          items:
+            type: string
+            format: uri
+          description: The groups this user belongs to. A user will get all permissions
+            granted to each of their groups.
+      required:
+      - url
+      - username
+  securitySchemes:
+    CookieJWT:
+      type: apiKey
+      in: cookie
+      name: access_token
+      description: Authentication via HttpOnly cookie.
