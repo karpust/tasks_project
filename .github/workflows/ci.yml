@@ -36,25 +36,20 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r tasks_project/requirements.txt
+        pip install -r requirements.txt
         pip install coverage pre-commit
 
     - name: Run pre-commit hooks
-      working-directory: tasks_project
       run: pre-commit run --all-files
 
     - name: Lint with ruff
-      working-directory: tasks_project
       run: make lint
 
     - name: Create .env for CI
-      working-directory: tasks_project
       run: cp .env.example .env
 
     - name: Check for missing migrations
-      working-directory: tasks_project
       run: python manage.py makemigrations --check --dry-run
 
     - name: Run tests with coverage and checks
-      working-directory: tasks_project
       run: make check
