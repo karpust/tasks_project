@@ -1,6 +1,7 @@
 *.pyc
 __pycache__
 .env
+.idea
 tascs_doo.txt
 .log
 .coverage

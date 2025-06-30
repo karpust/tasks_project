@@ -990,3 +990,31 @@
 [2025-06-28 20:41:52] [INFO] [SUCCESS] Type: reset_password_confirmation | Email: some_user@example.com
 [2025-06-28 20:41:53] [INFO] [SEND EMAIL TASK CODE STARTED]
 [2025-06-28 20:41:53] [INFO] [SUCCESS] Type: reset_password_confirmation | Email: some_user@example.com
+[2025-06-30 22:26:06] [INFO] [DELETE UNCONFIRMED USERS CODE STARTED
+[2025-06-30 22:26:06] [INFO] [SUCCESS] Deleted 1 unconfirmed users
+[2025-06-30 22:26:06] [INFO] [SEND EMAIL TASK CODE STARTED]
+[2025-06-30 22:26:07] [INFO] [SUCCESS] Type: register_confirmation | Email: user@email.com
+[2025-06-30 22:26:07] [INFO] [SEND EMAIL TASK CODE STARTED]
+[2025-06-30 22:26:07] [INFO] [SUCCESS] Type: repeat_register_confirmation | Email: user@email.com
+[2025-06-30 22:26:07] [INFO] [SEND EMAIL TASK CODE STARTED]
+[2025-06-30 22:26:07] [INFO] [SUCCESS] Type: reset_password_confirmation | Email: user@email.com
+[2025-06-30 22:26:22] [INFO] [SEND EMAIL TASK CODE STARTED]
+[2025-06-30 22:26:22] [INFO] [SUCCESS] Type: register_confirmation | Email: test@example.com
+[2025-06-30 22:27:00] [INFO] [SEND EMAIL TASK CODE STARTED]
+[2025-06-30 22:27:00] [INFO] [SUCCESS] Type: reset_password_confirmation | Email: some_user@example.com
+[2025-06-30 22:27:00] [INFO] [SEND EMAIL TASK CODE STARTED]
+[2025-06-30 22:27:00] [INFO] [SUCCESS] Type: reset_password_confirmation | Email: some_user@example.com
+[2025-06-30 22:32:29] [INFO] [DELETE UNCONFIRMED USERS CODE STARTED
+[2025-06-30 22:32:29] [INFO] [SUCCESS] Deleted 1 unconfirmed users
+[2025-06-30 22:32:29] [INFO] [SEND EMAIL TASK CODE STARTED]
+[2025-06-30 22:32:30] [INFO] [SUCCESS] Type: register_confirmation | Email: user@email.com
+[2025-06-30 22:32:30] [INFO] [SEND EMAIL TASK CODE STARTED]
+[2025-06-30 22:32:30] [INFO] [SUCCESS] Type: repeat_register_confirmation | Email: user@email.com
+[2025-06-30 22:32:30] [INFO] [SEND EMAIL TASK CODE STARTED]
+[2025-06-30 22:32:30] [INFO] [SUCCESS] Type: reset_password_confirmation | Email: user@email.com
+[2025-06-30 22:32:45] [INFO] [SEND EMAIL TASK CODE STARTED]
+[2025-06-30 22:32:45] [INFO] [SUCCESS] Type: register_confirmation | Email: test@example.com
+[2025-06-30 22:32:49] [INFO] [SEND EMAIL TASK CODE STARTED]
+[2025-06-30 22:32:49] [INFO] [SUCCESS] Type: reset_password_confirmation | Email: some_user@example.com
+[2025-06-30 22:32:49] [INFO] [SEND EMAIL TASK CODE STARTED]
+[2025-06-30 22:32:49] [INFO] [SUCCESS] Type: reset_password_confirmation | Email: some_user@example.com
