@@ -1,0 +1,36 @@
+# Байт-код
+*.pyc
+__pycache__
+
+# Секреты, локальные настройки, примеры
+.env
+.env.*
+.env.example
+
+# Логи, временные папки
+logs/
+*.log
+
+# Тесты
+integration_tests/
+*.coverage
+htmlcov/
+#pytest_cache/
+
+# IDE
+.idea/
+
+# git и CI/CD конфигурация
+.git/
+.gitignore
+.pre-commit-config.yaml
+Makefile
+.github/
+
+# Документация
+readme.md
+schema.yaml
+
+# Dev зависимости
+requirements.in
+pyproject.toml
