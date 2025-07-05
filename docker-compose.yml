@@ -1,0 +1,54 @@
+version: '3.9'  # версия docker-compose
+
+services:
+  backend:  # сервис веб-приложения - мой джанго
+    build: .  # собирает образ из текущей дир - где 1 Dockerfile
+    command: ["./wait-for-postgres.sh", "gunicorn", "tasks_project.wsgi:application", "--bind", "0.0.0.0:8000"]
+    volumes:  # хранение данных вне контейнера
+      - .:/code  # монтирует текущую дир в контейнер
+    ports:
+      - "8000:8000"  # пробрасывает порт 8000 контейнера на хост
+    env_file:
+      - .env  # загружает переменные окружения из .env файла
+    depends_on:
+      - db     # убедиться, что бд postgresql запустится раньше
+      - redis  # убедиться, что бд Redis запустится раньше
+
+  db:  # сервис PostgreSQL базы данных
+    image: postgres:16
+    restart: always  # автоматически перезапускает контейнер при сбоях
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/  # хранение данных PostgreSQL вне контейнера
+    environment:
+      POSTGRES_DB: ${DB_NAME}  # имя бд, юзера, пароль (из .env)
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+
+  redis:  # сервис Redis — брокер задач для Celery
+    image: redis:6
+    restart: always
+
+  celery:  # Celery worker
+    build: .  # собирает образ из текущей директории
+    command: celery -A app worker --loglevel=info  # запуск Celery воркера
+    volumes:
+      - .:/code  # монтирует код проекта
+    env_file:
+      - .env  # загружает переменные окружения
+    depends_on:
+      - redis  # Redis должен быть запущен
+      - db     # база данных тоже
+
+  celery-beat:  # Celery Beat — планировщик задач
+    build: .  # собирает образ
+    command: celery -A app beat --loglevel=info  # запуск планировщика
+    volumes:
+      - .:/code
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - db
+
+volumes:
+  postgres_data:  # именованный volume для хранения данных PostgreSQL

@@ -1,4 +1,6 @@
+black
 celery
+coverage
 djangorestframework
 djangorestframework_simplejwt
 django-celery-beat
@@ -6,8 +8,15 @@ django-cors-headers
 django-filter
 django-extensions
 drf-nested-routers
+drf-spectacular
 Django
+docformatter
+factory_boy
+flake8
 freezegun
+Faker
+pre-commit
 psycopg2
 python-dotenv
+ruff
 redis
