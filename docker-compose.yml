@@ -1,13 +1,14 @@
-version: '3.9'  # версия docker-compose
-
 services:
   backend:  # сервис веб-приложения - мой джанго
     build: .  # собирает образ из текущей дир - где 1 Dockerfile
-    command: ["./wait-for-postgres.sh", "gunicorn", "tasks_project.wsgi:application", "--bind", "0.0.0.0:8000"]
+    command: >
+      bash -c "./wait-for-postgres.sh &&
+      python manage.py migrate &&
+      gunicorn tasks_project.wsgi:application --bind 0.0.0.0:8000"
     volumes:  # хранение данных вне контейнера
       - .:/code  # монтирует текущую дир в контейнер
     ports:
-      - "8000:8000"  # пробрасывает порт 8000 контейнера на хост
+      - "8001:8000"  # пробрасывает порт 8000 контейнера на хост(порт хоста:порт контейнера)
     env_file:
       - .env  # загружает переменные окружения из .env файла
     depends_on:
@@ -18,7 +19,7 @@ services:
     image: postgres:16
     restart: always  # автоматически перезапускает контейнер при сбоях
     volumes:
-      - postgres_data:/var/lib/postgresql/data/  # хранение данных PostgreSQL вне контейнера
+      - postgres_data:/var/lib/tasks_project/postgresql/data/  # хранение данных PostgreSQL вне контейнера
     environment:
       POSTGRES_DB: ${DB_NAME}  # имя бд, юзера, пароль (из .env)
       POSTGRES_USER: ${DB_USER}
@@ -30,7 +31,7 @@ services:
 
   celery:  # Celery worker
     build: .  # собирает образ из текущей директории
-    command: celery -A app worker --loglevel=info  # запуск Celery воркера
+    command: celery -A tasks_project worker --loglevel=info  # запуск Celery воркера
     volumes:
       - .:/code  # монтирует код проекта
     env_file:
@@ -38,10 +39,11 @@ services:
     depends_on:
       - redis  # Redis должен быть запущен
       - db     # база данных тоже
+    restart: always
 
   celery-beat:  # Celery Beat — планировщик задач
     build: .  # собирает образ
-    command: celery -A app beat --loglevel=info  # запуск планировщика
+    command: celery -A tasks_project beat --loglevel=info  # запуск планировщика
     volumes:
       - .:/code
     env_file:
@@ -49,6 +51,7 @@ services:
     depends_on:
       - redis
       - db
+    restart: always
 
 volumes:
   postgres_data:  # именованный volume для хранения данных PostgreSQL
