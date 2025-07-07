@@ -46,7 +46,7 @@ jobs:
       run: make lint
 
     - name: Create .env for CI
-      run: cp .env.example .env
+      run: cp .env.dev .env
 
     - name: Check for missing migrations
       run: python manage.py makemigrations --check --dry-run
