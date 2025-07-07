@@ -10,7 +10,7 @@ services:
     ports:
       - "8001:8000"  # пробрасывает порт 8000 контейнера на хост(порт хоста:порт контейнера)
     env_file:
-      - .env  # загружает переменные окружения из .env файла
+      - .env.prod  # загружает переменные окружения из .env.prod файла
     depends_on:
       - db     # убедиться, что бд postgresql запустится раньше
       - redis  # убедиться, что бд Redis запустится раньше
@@ -21,7 +21,7 @@ services:
     volumes:
       - postgres_data:/var/lib/tasks_project/postgresql/data/  # хранение данных PostgreSQL вне контейнера
     environment:
-      POSTGRES_DB: ${DB_NAME}  # имя бд, юзера, пароль (из .env)
+      POSTGRES_DB: ${DB_NAME}  # имя бд, юзера, пароль (из .env.prod)
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
 
@@ -35,7 +35,7 @@ services:
     volumes:
       - .:/code  # монтирует код проекта
     env_file:
-      - .env  # загружает переменные окружения
+      - .env.prod  # загружает переменные окружения
     depends_on:
       - redis  # Redis должен быть запущен
       - db     # база данных тоже
@@ -47,7 +47,7 @@ services:
     volumes:
       - .:/code
     env_file:
-      - .env
+      - .env.prod
     depends_on:
       - redis
       - db

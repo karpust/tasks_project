@@ -1,6 +1,6 @@
 *.pyc
 __pycache__
-.env
+.env.*
 .idea
 tascs_doo.txt
 .log

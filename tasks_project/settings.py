@@ -16,7 +16,10 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-load_dotenv()
+# load_dotenv()
+# выбираю нужный .env файл:
+ENV_FILE = os.getenv("DJANGO_ENV_FILE", ".env.dev")  # если не передано-берет '.env.dev'
+load_dotenv(dotenv_path=ENV_FILE)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -228,11 +231,11 @@ SPECTACULAR_SETTINGS = {
     # OTHER SETTINGS
 }
 
-CELERY_BROKER_URL = "redis://localhost:6379/0"
-CELERY_RESULT_BACKEND = "redis://localhost:6379/0"  # для хранения результатов
-CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
-CELERY_ENABLE_UTC = True
-CELERY_TIMEZONE = "UTC"
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL")
+CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND")  # для хранения результатов
+CELERY_BEAT_SCHEDULER = os.getenv("CELERY_BEAT_SCHEDULER")
+CELERY_ENABLE_UTC = os.getenv("CELERY_ENABLE_UTC")
+CELERY_TIMEZONE = os.getenv("CELERY_TIMEZONE")
 
 LOGGING = {
     "version": 1,
