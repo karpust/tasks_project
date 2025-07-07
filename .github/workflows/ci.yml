@@ -48,6 +48,9 @@ jobs:
     - name: Create .env for CI
       run: cp .env.example .env
 
+    - name: Set DJANGO_ENV_FILE for CI
+      run: echo "DJANGO_ENV_FILE=.env" >> $GITHUB_ENV
+
     - name: Check for missing migrations
       run: python manage.py makemigrations --check --dry-run
 
