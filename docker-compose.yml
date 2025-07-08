@@ -7,13 +7,18 @@ services:
       gunicorn tasks_project.wsgi:application --bind 0.0.0.0:8000"
     volumes:  # хранение данных вне контейнера
       - .:/code  # монтирует текущую дир в контейнер
+    env_file:
+      - .env
     ports:
       - "8001:8000"  # пробрасывает порт 8000 контейнера на хост(порт хоста:порт контейнера)
-    env_file:
-      - .env.prod  # загружает переменные окружения из .env.prod файла
     depends_on:
       - db     # убедиться, что бд postgresql запустится раньше
       - redis  # убедиться, что бд Redis запустится раньше
+    healthcheck:
+      test: ["CMD", "bash", "-c", "echo > /dev/tcp/localhost/8000"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   db:  # сервис PostgreSQL базы данных
     image: postgres:16
@@ -35,9 +40,10 @@ services:
     volumes:
       - .:/code  # монтирует код проекта
     env_file:
-      - .env.prod  # загружает переменные окружения
+      - .env
     depends_on:
       - redis  # Redis должен быть запущен
+      - backend
       - db     # база данных тоже
     restart: always
 
@@ -47,10 +53,14 @@ services:
     volumes:
       - .:/code
     env_file:
-      - .env.prod
+      - .env
     depends_on:
-      - redis
-      - db
+      redis:
+        condition: service_started
+      db:
+        condition: service_started
+      backend:
+        condition: service_healthy
     restart: always
 
 volumes:
