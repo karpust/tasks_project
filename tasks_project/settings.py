@@ -16,7 +16,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-FORCE_SCRIPT_NAME="/tasks_project"
+FORCE_SCRIPT_NAME = "/tasks_project"
 USE_X_FORWARDED_HOST = True
 # SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
@@ -225,13 +225,11 @@ DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL")
 SPECTACULAR_SETTINGS = {
     "TITLE": "Your Project API",
     "DESCRIPTION": "Your project description",
-    "VERSION": "1.0.0",
+    "VERSION": "2.0.0",
     #'SERVE_ROOT': '/tasks_project/schema/',
     #'SCHEMA_PATH_PREFIX': '/tasks_project',
     "SERVE_INCLUDE_SCHEMA": False,
-    'SERVERS': [
-        {'url': 'http://95.31.180.169:5816/tasks_project'}
-    ],
+    "SERVERS": [{"url": "http://95.31.180.169:5816/tasks_project"}],
 }
 
 CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL")
