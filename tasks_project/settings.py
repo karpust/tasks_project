@@ -16,8 +16,8 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-FORCE_SCRIPT_NAME = "/tasks_project"
-USE_X_FORWARDED_HOST = True
+# FORCE_SCRIPT_NAME = "/tasks_project"
+# USE_X_FORWARDED_HOST = True
 # SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # load_dotenv()
