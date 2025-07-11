@@ -27,7 +27,6 @@ Makefile
 
 # Документация
 readme.md
-schema.yaml
 
 # Dev зависимости
 requirements.in

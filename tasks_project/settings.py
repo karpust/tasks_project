@@ -16,6 +16,10 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
+FORCE_SCRIPT_NAME="/tasks_project"
+USE_X_FORWARDED_HOST = True
+# SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 # load_dotenv()
 # выбираю нужный .env файл:
 ENV_FILE = os.getenv("DJANGO_ENV_FILE", ".env.dev")  # если не передано-берет '.env.dev'
@@ -204,14 +208,9 @@ SIMPLE_JWT = {
     # при навигации по сайту; предотвращение CSRF-атак.
 }
 
-# Включаем безопасность для cookie
 SECURE_COOKIE = False  # True  # Только через HTTPS, если в продакшене
 
 CORS_ALLOW_CREDENTIALS = True  # Для разрешения отправки cookies
-# CORS_ORIGIN_ALLOW_ALL = False  # Лучше указать только доверенные домены
-# CORS_ALLOWED_ORIGINS = [
-#     "http://your_frontend_domain.com",
-# ]
 
 EMAIL_BACKEND = os.getenv("EMAIL_BACKEND")
 EMAIL_HOST = os.getenv("EMAIL_HOST")
@@ -227,8 +226,12 @@ SPECTACULAR_SETTINGS = {
     "TITLE": "Your Project API",
     "DESCRIPTION": "Your project description",
     "VERSION": "1.0.0",
+    #'SERVE_ROOT': '/tasks_project/schema/',
+    #'SCHEMA_PATH_PREFIX': '/tasks_project',
     "SERVE_INCLUDE_SCHEMA": False,
-    # OTHER SETTINGS
+    'SERVERS': [
+        {'url': 'http://95.31.180.169:5816/tasks_project'}
+    ],
 }
 
 CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL")
