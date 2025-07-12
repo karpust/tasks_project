@@ -4,6 +4,7 @@ services:
     command: >
       bash -c "./wait-for-postgres.sh &&
       python manage.py migrate &&
+      python manage.py runscript scripts.setup_periodic_tasks &&
       gunicorn tasks_project.wsgi:application --bind 0.0.0.0:8000"
     volumes:  # хранение данных вне контейнера
       - .:/code  # монтирует текущую дир в контейнер
@@ -36,7 +37,7 @@ services:
 
   celery:  # Celery worker
     build: .  # собирает образ из текущей директории
-    command: celery -A tasks_project worker --loglevel=info  # запуск Celery воркера
+    command: celery -A tasks_project worker -Q high_priority,default,low_priority --concurrency=4 --loglevel=info
     volumes:
       - .:/code  # монтирует код проекта
     env_file:

@@ -16,7 +16,11 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
+# настройки работы приложения за обратным прокси:
+# говорю джанго, что проект размещен не в корне:
 # FORCE_SCRIPT_NAME = "/tasks_project"
+# говорю джанге реальный хост, а не то что проксирует nginx,
+# для корректного формирования ссылок:
 # USE_X_FORWARDED_HOST = True
 # SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 

@@ -14,6 +14,7 @@ def run():
         task="tasks.tasks.deadline_notification",
         defaults={
             "interval": schedule,
+            "queue": "default",
         },
     )
 
