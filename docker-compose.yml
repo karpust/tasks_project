@@ -44,7 +44,6 @@ services:
       - .env
     depends_on:
       - redis  # Redis должен быть запущен
-      - backend
       - db     # база данных тоже
     restart: always
 
@@ -70,16 +69,13 @@ services:
       - "5556:5555"
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/0
-      - SECRET_KEY=dummy-key-for-flower
       - FLOWER_BASIC_AUTH=admin:45gfe89
+      - SECRET_KEY=dummy-key-for-flower
     command: celery -A tasks_project flower --url-prefix=/flower
     volumes:
       - .:/code
     depends_on:
-      redis:
-        condition: service_started
-      backend:
-        condition: service_healthy
+      - redis
 
 
 volumes:
