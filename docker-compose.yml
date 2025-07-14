@@ -1,26 +1,33 @@
-version: '3.9'  # версия docker-compose
-
 services:
   backend:  # сервис веб-приложения - мой джанго
     build: .  # собирает образ из текущей дир - где 1 Dockerfile
-    command: ["./wait-for-postgres.sh", "gunicorn", "tasks_project.wsgi:application", "--bind", "0.0.0.0:8000"]
+    command: >
+      bash -c "./wait-for-postgres.sh &&
+      python manage.py migrate &&
+      python manage.py runscript scripts.setup_periodic_tasks &&
+      gunicorn tasks_project.wsgi:application --bind 0.0.0.0:8000"
     volumes:  # хранение данных вне контейнера
       - .:/code  # монтирует текущую дир в контейнер
-    ports:
-      - "8000:8000"  # пробрасывает порт 8000 контейнера на хост
     env_file:
-      - .env  # загружает переменные окружения из .env файла
+      - .env
+    ports:
+      - "8001:8000"  # пробрасывает порт 8000 контейнера на хост(порт хоста:порт контейнера)
     depends_on:
       - db     # убедиться, что бд postgresql запустится раньше
       - redis  # убедиться, что бд Redis запустится раньше
+    healthcheck:
+      test: ["CMD", "bash", "-c", "echo > /dev/tcp/localhost/8000"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   db:  # сервис PostgreSQL базы данных
     image: postgres:16
     restart: always  # автоматически перезапускает контейнер при сбоях
     volumes:
-      - postgres_data:/var/lib/postgresql/data/  # хранение данных PostgreSQL вне контейнера
+      - postgres_data:/var/lib/tasks_project/postgresql/data/  # хранение данных PostgreSQL вне контейнера
     environment:
-      POSTGRES_DB: ${DB_NAME}  # имя бд, юзера, пароль (из .env)
+      POSTGRES_DB: ${DB_NAME}  # имя бд, юзера, пароль (из .env.prod)
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
 
@@ -30,25 +37,46 @@ services:
 
   celery:  # Celery worker
     build: .  # собирает образ из текущей директории
-    command: celery -A app worker --loglevel=info  # запуск Celery воркера
+    command: celery -A tasks_project worker -Q high_priority,default,low_priority --concurrency=4 --loglevel=info
     volumes:
       - .:/code  # монтирует код проекта
     env_file:
-      - .env  # загружает переменные окружения
+      - .env
     depends_on:
       - redis  # Redis должен быть запущен
       - db     # база данных тоже
+    restart: always
 
   celery-beat:  # Celery Beat — планировщик задач
     build: .  # собирает образ
-    command: celery -A app beat --loglevel=info  # запуск планировщика
+    command: celery -A tasks_project beat --loglevel=info  # запуск планировщика
     volumes:
       - .:/code
     env_file:
       - .env
     depends_on:
+      redis:
+        condition: service_started
+      db:
+        condition: service_started
+      backend:
+        condition: service_healthy
+    restart: always
+
+  flower:
+    build: .
+    ports:
+      - "5556:5555"
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - FLOWER_BASIC_AUTH=admin:45gfe89
+      - SECRET_KEY=dummy-key-for-flower
+    command: celery -A tasks_project flower --url-prefix=/flower
+    volumes:
+      - .:/code
+    depends_on:
       - redis
-      - db
+
 
 volumes:
   postgres_data:  # именованный volume для хранения данных PostgreSQL

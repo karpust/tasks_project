@@ -11,7 +11,6 @@ from tasks.permissions import CommentPermission, TaskPermission
 
 
 class BasePermissionTestCase(APITestCase):
-
     @classmethod
     def setUpTestData(cls):
         cls.admin = MagicMock(groups=MagicMock(name="admin"))

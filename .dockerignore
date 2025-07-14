@@ -3,9 +3,7 @@
 __pycache__
 
 # Секреты, локальные настройки, примеры
-.env
 .env.*
-.env.example
 
 # Логи, временные папки
 logs/
@@ -29,7 +27,6 @@ Makefile
 
 # Документация
 readme.md
-schema.yaml
 
 # Dev зависимости
 requirements.in

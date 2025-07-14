@@ -19,6 +19,7 @@ def run():
         # хочу чтобы задача обновлялась при изменении расписания:
         defaults={
             "interval": schedule,
+            "queue": "low_priority",
             # 'args': '[]',
         },
     )

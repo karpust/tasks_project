@@ -16,7 +16,18 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-load_dotenv()
+# настройки работы приложения за обратным прокси:
+# говорю джанго, что проект размещен не в корне:
+# FORCE_SCRIPT_NAME = "/tasks_project"
+# говорю джанге реальный хост, а не то что проксирует nginx,
+# для корректного формирования ссылок:
+# USE_X_FORWARDED_HOST = True
+# SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# load_dotenv()
+# выбираю нужный .env файл:
+ENV_FILE = os.getenv("DJANGO_ENV_FILE", ".env.dev")  # если не передано-берет '.env.dev'
+load_dotenv(dotenv_path=ENV_FILE)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -201,14 +212,9 @@ SIMPLE_JWT = {
     # при навигации по сайту; предотвращение CSRF-атак.
 }
 
-# Включаем безопасность для cookie
 SECURE_COOKIE = False  # True  # Только через HTTPS, если в продакшене
 
 CORS_ALLOW_CREDENTIALS = True  # Для разрешения отправки cookies
-# CORS_ORIGIN_ALLOW_ALL = False  # Лучше указать только доверенные домены
-# CORS_ALLOWED_ORIGINS = [
-#     "http://your_frontend_domain.com",
-# ]
 
 EMAIL_BACKEND = os.getenv("EMAIL_BACKEND")
 EMAIL_HOST = os.getenv("EMAIL_HOST")
@@ -223,16 +229,18 @@ DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL")
 SPECTACULAR_SETTINGS = {
     "TITLE": "Your Project API",
     "DESCRIPTION": "Your project description",
-    "VERSION": "1.0.0",
+    "VERSION": "2.0.0",
+    #'SERVE_ROOT': '/tasks_project/schema/',
+    #'SCHEMA_PATH_PREFIX': '/tasks_project',
     "SERVE_INCLUDE_SCHEMA": False,
-    # OTHER SETTINGS
+    "SERVERS": [{"url": "http://95.31.180.169:5816/tasks_project"}],
 }
 
-CELERY_BROKER_URL = "redis://localhost:6379/0"
-CELERY_RESULT_BACKEND = "redis://localhost:6379/0"  # для хранения результатов
-CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
-CELERY_ENABLE_UTC = True
-CELERY_TIMEZONE = "UTC"
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL")
+CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND")  # для хранения результатов
+CELERY_BEAT_SCHEDULER = os.getenv("CELERY_BEAT_SCHEDULER")
+CELERY_ENABLE_UTC = os.getenv("CELERY_ENABLE_UTC")
+CELERY_TIMEZONE = os.getenv("CELERY_TIMEZONE")
 
 LOGGING = {
     "version": 1,

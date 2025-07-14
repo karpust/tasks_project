@@ -135,7 +135,6 @@ class RegisterSerializerTest(APITestCase):
 
 
 class ChangePasswordSerializerTest(APITestCase):
-
     def test_passwords_match_and_valid(self):
         data = {
             "new_password": "new_password123",

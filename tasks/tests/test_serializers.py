@@ -17,7 +17,6 @@ User = get_user_model()
 
 
 class TaskSerializerTests(TestCase):
-
     def setUp(self):
         """Предварительно создаю объекты юзера, тэга, категории; использую их для
         создания объекта задачи; но тк как task.owner передается автоматически из зароса
@@ -202,7 +201,6 @@ class TaskSerializerTests(TestCase):
 
 
 class CommentSerializerTest(TestCase):
-
     def setUp(self):
         # create fake user:
         self.user = User.objects.create(username="commenter")
@@ -298,7 +296,6 @@ class CommentSerializerTest(TestCase):
 
 
 class CategorySerializerTest(TestCase):
-
     def setUp(self):
         self.category_data = {"name": "Test Category"}
 
@@ -336,7 +333,6 @@ class CategorySerializerTest(TestCase):
 
 
 class TagSerializerTest(TestCase):
-
     def setUp(self):
         self.tag_data = {"name": "Test Tag"}
 

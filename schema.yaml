@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Your Project API
-  version: 1.0.0
+  version: 6.0.0
   description: Your project description
 paths:
   /api/auth/change_password/{uid}/{token}/:
@@ -38,7 +38,6 @@ paths:
               $ref: '#/components/schemas/ChangePassword'
         required: true
       security:
-      - CookieJWT: []
       - {}
       responses:
         '400':
@@ -96,7 +95,6 @@ paths:
       tags:
       - Authentication
       security:
-      - CookieJWT: []
       - {}
       responses:
         '200':
@@ -152,7 +150,6 @@ paths:
               $ref: '#/components/schemas/Login'
         required: true
       security:
-      - CookieJWT: []
       - {}
       responses:
         '200':
@@ -189,8 +186,6 @@ paths:
       summary: Выход пользователя
       tags:
       - Authentication
-      security:
-      - CookieJWT: []
       responses:
         '200':
           content:
@@ -223,7 +218,6 @@ paths:
       tags:
       - Authentication
       security:
-      - CookieJWT: []
       - {}
       responses:
         '200':
@@ -273,7 +267,6 @@ paths:
               $ref: '#/components/schemas/Register'
         required: true
       security:
-      - CookieJWT: []
       - {}
       responses:
         '201':
@@ -325,7 +318,6 @@ paths:
               $ref: '#/components/schemas/RepeatConfirmRegister'
         required: true
       security:
-      - CookieJWT: []
       - {}
       responses:
         '200':
@@ -376,7 +368,6 @@ paths:
               $ref: '#/components/schemas/ResetPassword'
         required: true
       security:
-      - CookieJWT: []
       - {}
       responses:
         '200':
@@ -412,18 +403,27 @@ paths:
     get:
       operationId: groups_list
       description: API endpoint that allows groups to be viewed or edited.
+      parameters:
+      - name: limit
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: offset
+        required: false
+        in: query
+        description: The initial index from which to return the results.
+        schema:
+          type: integer
       tags:
       - groups
-      security:
-      - CookieJWT: []
       responses:
         '200':
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Group'
+                $ref: '#/components/schemas/PaginatedGroupList'
           description: ''
     post:
       operationId: groups_create
@@ -442,8 +442,6 @@ paths:
             schema:
               $ref: '#/components/schemas/Group'
         required: true
-      security:
-      - CookieJWT: []
       responses:
         '201':
           content:
@@ -464,8 +462,6 @@ paths:
         required: true
       tags:
       - groups
-      security:
-      - CookieJWT: []
       responses:
         '200':
           content:
@@ -497,8 +493,6 @@ paths:
             schema:
               $ref: '#/components/schemas/Group'
         required: true
-      security:
-      - CookieJWT: []
       responses:
         '200':
           content:
@@ -529,8 +523,6 @@ paths:
           multipart/form-data:
             schema:
               $ref: '#/components/schemas/PatchedGroup'
-      security:
-      - CookieJWT: []
       responses:
         '200':
           content:
@@ -550,8 +542,6 @@ paths:
         required: true
       tags:
       - groups
-      security:
-      - CookieJWT: []
       responses:
         '204':
           description: No response body
@@ -606,6 +596,18 @@ paths:
           items:
             type: string
         description: Фильтрация задач по имени исполнителя.
+      - name: limit
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: offset
+        required: false
+        in: query
+        description: The initial index from which to return the results.
+        schema:
+          type: integer
       - in: query
         name: ordering
         schema:
@@ -651,16 +653,12 @@ paths:
         description: Фильтрация задач по названию тэга.
       tags:
       - tasks
-      security:
-      - CookieJWT: []
       responses:
         '200':
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Task'
+                $ref: '#/components/schemas/PaginatedTaskList'
           description: ''
     post:
       operationId: tasks_create
@@ -681,8 +679,6 @@ paths:
             schema:
               $ref: '#/components/schemas/Task'
         required: true
-      security:
-      - CookieJWT: []
       responses:
         '201':
           content:
@@ -704,8 +700,6 @@ paths:
         required: true
       tags:
       - tasks
-      security:
-      - CookieJWT: []
       responses:
         '200':
           content:
@@ -738,8 +732,6 @@ paths:
             schema:
               $ref: '#/components/schemas/Task'
         required: true
-      security:
-      - CookieJWT: []
       responses:
         '200':
           content:
@@ -771,8 +763,6 @@ paths:
           multipart/form-data:
             schema:
               $ref: '#/components/schemas/PatchedTask'
-      security:
-      - CookieJWT: []
       responses:
         '200':
           content:
@@ -793,8 +783,6 @@ paths:
         required: true
       tags:
       - tasks
-      security:
-      - CookieJWT: []
       responses:
         '204':
           description: No response body
@@ -802,6 +790,18 @@ paths:
     get:
       operationId: tasks_comments_list
       parameters:
+      - name: limit
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: offset
+        required: false
+        in: query
+        description: The initial index from which to return the results.
+        schema:
+          type: integer
       - in: path
         name: task_pk
         schema:
@@ -809,16 +809,12 @@ paths:
         required: true
       tags:
       - tasks
-      security:
-      - CookieJWT: []
       responses:
         '200':
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Comment'
+                $ref: '#/components/schemas/PaginatedCommentList'
           description: ''
     post:
       operationId: tasks_comments_create
@@ -842,8 +838,6 @@ paths:
             schema:
               $ref: '#/components/schemas/Comment'
         required: true
-      security:
-      - CookieJWT: []
       responses:
         '201':
           content:
@@ -868,8 +862,6 @@ paths:
         required: true
       tags:
       - tasks
-      security:
-      - CookieJWT: []
       responses:
         '200':
           content:
@@ -905,8 +897,6 @@ paths:
             schema:
               $ref: '#/components/schemas/Comment'
         required: true
-      security:
-      - CookieJWT: []
       responses:
         '200':
           content:
@@ -941,8 +931,6 @@ paths:
           multipart/form-data:
             schema:
               $ref: '#/components/schemas/PatchedComment'
-      security:
-      - CookieJWT: []
       responses:
         '200':
           content:
@@ -966,8 +954,6 @@ paths:
         required: true
       tags:
       - tasks
-      security:
-      - CookieJWT: []
       responses:
         '204':
           description: No response body
@@ -975,18 +961,29 @@ paths:
     get:
       operationId: users_list
       description: API endpoint that allows authapp to be viewed or edited.
+      parameters:
+      - name: limit
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: offset
+        required: false
+        in: query
+        description: The initial index from which to return the results.
+        schema:
+          type: integer
       tags:
       - users
       security:
-      - CookieJWT: []
+      - {}
       responses:
         '200':
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/PaginatedUserList'
           description: ''
     post:
       operationId: users_create
@@ -1006,7 +1003,7 @@ paths:
               $ref: '#/components/schemas/User'
         required: true
       security:
-      - CookieJWT: []
+      - {}
       responses:
         '201':
           content:
@@ -1028,7 +1025,7 @@ paths:
       tags:
       - users
       security:
-      - CookieJWT: []
+      - {}
       responses:
         '200':
           content:
@@ -1061,7 +1058,7 @@ paths:
               $ref: '#/components/schemas/User'
         required: true
       security:
-      - CookieJWT: []
+      - {}
       responses:
         '200':
           content:
@@ -1093,7 +1090,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedUser'
       security:
-      - CookieJWT: []
+      - {}
       responses:
         '200':
           content:
@@ -1114,7 +1111,7 @@ paths:
       tags:
       - users
       security:
-      - CookieJWT: []
+      - {}
       responses:
         '204':
           description: No response body
@@ -1137,7 +1134,7 @@ components:
       - new_password
     Comment:
       type: object
-      description: Сериализатор для модели комментариев
+      description: Сериализатор для модели комментариев.
       properties:
         id:
           type: integer
@@ -1236,9 +1233,101 @@ components:
       required:
       - password
       - username
+    PaginatedCommentList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=400&limit=100
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=200&limit=100
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Comment'
+    PaginatedGroupList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=400&limit=100
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=200&limit=100
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Group'
+    PaginatedTaskList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=400&limit=100
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=200&limit=100
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Task'
+    PaginatedUserList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=400&limit=100
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=200&limit=100
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
     PatchedComment:
       type: object
-      description: Сериализатор для модели комментариев
+      description: Сериализатор для модели комментариев.
       properties:
         id:
           type: integer
@@ -1266,7 +1355,7 @@ components:
           maxLength: 150
     PatchedTask:
       type: object
-      description: Сериализатор для модели задач
+      description: Сериализатор для модели задач.
       properties:
         id:
           type: integer
@@ -1333,8 +1422,9 @@ components:
             granted to each of their groups.
     Register:
       type: object
-      description: Сериализатор для регистрации пользователя и отправления ссылки
-        подтверждения на email.
+      description: |-
+        Сериализатор для регистрации пользователя и отправления ссылки подтверждения на
+        email.
       properties:
         username:
           type: string
@@ -1380,7 +1470,7 @@ components:
       - email
     Task:
       type: object
-      description: Сериализатор для модели задач
+      description: Сериализатор для модели задач.
       properties:
         id:
           type: integer
@@ -1454,9 +1544,5 @@ components:
       required:
       - url
       - username
-  securitySchemes:
-    CookieJWT:
-      type: apiKey
-      in: cookie
-      name: access_token
-      description: Authentication via HttpOnly cookie.
+servers:
+- url: http://95.31.180.169:5816/tasks_project
