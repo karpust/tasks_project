@@ -10,6 +10,7 @@ test:  ## Запуск django тестов
 cov:  ## Запуск тестов с замером покрытия
 	coverage run manage.py test
 	coverage report --fail-under=80
+	coverage xml  # for codecov
 
 cov-html:  ## Генерация HTML-отчёта покрытия и автоматическое открытие в браузере
 	coverage html & disown && start htmlcov/index.html
