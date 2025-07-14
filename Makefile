@@ -9,6 +9,7 @@ test:  ## Запуск django тестов
 
 cov:  ## Запуск тестов с замером покрытия
 	coverage run manage.py test
+	coverage report --fail-under=80
 
 cov-html:  ## Генерация HTML-отчёта покрытия и автоматическое открытие в браузере
 	coverage html & disown && start htmlcov/index.html
@@ -21,7 +22,7 @@ format:  ## Форматирование кода с black (отступы, ка
 	ruff check --fix $(SRC)
 
 check-comments:  ## Проверка docstring и комментариев
-	docformatter --check --recursive --black $(SRC)
+	docformatter --check --wrap-summaries 88 --wrap-descriptions 88 --recursive $(SRC)  # suitable for black
 
 fix-comments:  ## Форматирование docstring и комментариев
 	@echo "Fixing comments and docstrings with docformatter..."
@@ -32,8 +33,7 @@ clean:  ## Очистка отчёта покрытия
 	@python -c "import shutil; shutil.rmtree('htmlcov', ignore_errors=True)"
 	@python -c "import os; import os; os.path.exists('.coverage') and os.remove('.coverage')"
 
-check: lint cov check-comments  ## Полная проверка (тесты, покрытие, линтинг)
-	coverage report --fail-under=80
+check: lint check-comments  ## Проверка линтерами ruff and docformatter
 
 format-all: format fix-comments  ## Форматирование black и docformatter
 

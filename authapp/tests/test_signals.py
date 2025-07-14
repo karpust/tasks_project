@@ -7,7 +7,6 @@ from authapp.signals import create_or_update_user_profile
 
 
 class UserProfileSignalTest(TestCase):
-
     def setUp(self):
         self.user = User.objects.create_user(
             username="testuser", password="testpassword"

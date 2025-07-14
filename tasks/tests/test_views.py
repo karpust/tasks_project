@@ -340,7 +340,6 @@ class TaskFilterTest(BaseTestCase):
 
 
 class BaseTaskTestCase(BaseTestCase):
-
     def setUp(self):
         self.task = self.make_task(self.owner, self.executor)
         self.list_url = reverse("task-list")
@@ -811,7 +810,6 @@ class CommentPatchViewTests(BaseCommentTestCase):
 
 
 class CommentDeleteViewTests(BaseCommentTestCase):
-
     def test_delete_as_author(self):
         self.make_authenticated(self.author)
         response = self.client.delete(self.url)

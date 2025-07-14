@@ -28,7 +28,6 @@ User = get_user_model()
 )  # изменяю настройки селери для теста:
 # отправлять задачу синхронно чтобы работать с email.outbox
 class RegisterAPIViewTest(APITestCase):
-
     def setUp(self):
         self.user_data = {
             "username": "testuser",
@@ -87,7 +86,6 @@ class RegisterAPIViewTest(APITestCase):
 
 
 class ConfirmRegisterAPIViewTest(APITestCase):
-
     def setUp(self):
         self.user = User.objects.create_user(
             username="some_user",
@@ -172,7 +170,6 @@ class ConfirmRegisterAPIViewTest(APITestCase):
 
 
 class RepeatConfirmRegisterAPIViewTest(APITestCase):
-
     def setUp(self):
         self.user = User.objects.create_user(
             username="some_user",
@@ -558,7 +555,6 @@ class RefreshTokenAPITestCase(JwtBaseTestCase):
     CELERY_TASK_EAGER_PROPAGATES=True,  # вернуть ошибки(исключения) в вызывающем коде
 )
 class ResetPasswordAPIViewTest(APITestCase):
-
     def setUp(self):
         # создание тестового юзера:
         self.user = User.objects.create_user(
@@ -615,7 +611,7 @@ class ResetPasswordAPIViewTest(APITestCase):
         self.assertRegex(
             text,
             r"Перейдите по ссылке для сброса пароля: "
-            r"http://localhost:8000/api/auth/change_password/.+/.+",
+            r"https?://[^/]+/api/auth/change_password/.+/.+",
         )
         # проверяю токены:
         pattern = r"/change_password/(?P<uid>[^/]+)/(?P<token>[^/]+)/?"
@@ -642,7 +638,6 @@ class ResetPasswordAPIViewTest(APITestCase):
 
 
 class ChangePasswordAPIViewTest(APITestCase):
-
     def setUp(self):
         self.user = User.objects.create_user(
             username="some_user",

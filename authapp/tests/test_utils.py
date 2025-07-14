@@ -48,7 +48,9 @@ class EmailVerificationUtilsTestCase(APITestCase):
 
     def test_token_removal_from_cache_after_ttl(self):
         """Проверяет, что токен удаляется из кэша, не превышая ttl; TTL (Time- To-Live)
-        — это время жизни ключа в кэше."""
+
+        — это время жизни ключа в кэше.
+        """
         # cache_backend = caches['default']  # см какой кэш юзаю
         # print(cache_backend._cache)  # покажет все ключи и их значения
         cache.clear()  # очистка кеша перед тестом - необязательно

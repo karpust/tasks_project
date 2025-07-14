@@ -17,7 +17,6 @@ User = get_user_model()
 # @override_settings(CELERY_TASK_ALWAYS_EAGER=True,
 #                    CELERY_TASK_EAGER_PROPAGATES=True,)
 class TestNotificationTask(APITestCase):
-
     @classmethod
     def setUpTestData(cls):
         # setUpTestData откатит все изменения тк TestCase

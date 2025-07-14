@@ -15,8 +15,8 @@ class CharInFilter(BaseInFilter, CharFilter):
 
 
 class TaskFilter(django_filters.FilterSet):
-    """
-    Фильтрация по status_display(строке),
+    """Фильтрация по status_display(строке),
+
     а сортировка по status(числу) - для удобства и функциональности.
     """
 
@@ -77,8 +77,8 @@ class TaskFilter(django_filters.FilterSet):
         ).distinct()
 
     def filter_by_field_display(self, queryset, name, value, field_name, choices):
-        """
-        Метод для использования числовых и строковых значений статуса.
+        """Метод для использования числовых и строковых значений статуса.
+
         при фильтрации - пользователь видит строку для удобства,
         а в базу передается число для быстроты работы.
         при сортировке - число необходимо для сравнения.

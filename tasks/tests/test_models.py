@@ -51,7 +51,6 @@ class BaseTaskModelTests(TestCase):
 
 
 class TaskModelTests(BaseTaskModelTests):
-
     def test_task_correct_creation(self):
         self.assertEqual(self.task.title, "some_task")
         self.assertEqual(self.task.description, "some_description")
@@ -152,7 +151,6 @@ class TaskModelTests(BaseTaskModelTests):
 
 
 class CommentModelTests(BaseTaskModelTests):
-
     def test_comment_creation(self):
         """Проверяет, что комментарий корректно создается."""
         self.assertEqual(self.comment.text, "Test comment")
