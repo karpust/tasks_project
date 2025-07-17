@@ -47,6 +47,10 @@ DEBUG = os.getenv("DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost").split(",")
 
+DJANGO_ADMIN_USERNAME = os.environ.get("DJANGO_ADMIN_USERNAME")
+DJANGO_ADMIN_EMAIL = os.environ.get("DJANGO_ADMIN_EMAIL")
+DJANGO_ADMIN_PASSWORD = os.environ.get("DJANGO_ADMIN_PASSWORD")
+
 
 # Application definition
 
@@ -242,6 +246,17 @@ CELERY_BEAT_SCHEDULER = os.getenv("CELERY_BEAT_SCHEDULER")
 CELERY_ENABLE_UTC = os.getenv("CELERY_ENABLE_UTC")
 CELERY_TIMEZONE = os.getenv("CELERY_TIMEZONE")
 
+
+# чтобы не тянуть логи в гит:
+# создаю папку logs/ если её нет:
+LOG_DIR = os.path.join(BASE_DIR, "logs")  # полный путь
+os.makedirs(LOG_DIR, exist_ok=True)  # не райзить если уже существует
+
+
+def get_log_path(name):  # вернет полный путь к файлу логов
+    return os.path.join(LOG_DIR, name)
+
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -252,28 +267,34 @@ LOGGING = {
         },
     },
     "handlers": {
-        "email_file": {
+        "auth_file": {
             "level": "INFO",
             "class": "logging.FileHandler",
             "formatter": "verbose",
-            "filename": "logs/email_tasks.log",
+            "filename": get_log_path("auth_tasks.log"),
         },
         "notify_file": {
             "level": "INFO",
             "class": "logging.FileHandler",
             "formatter": "verbose",
-            "filename": "logs/notification_tasks.log",
+            "filename": get_log_path("notification_tasks.log"),
         },
-        "comment_file": {
+        "cleanup_file": {
             "level": "INFO",
             "class": "logging.FileHandler",
             "formatter": "verbose",
-            "filename": "logs/comment_factory.log",
+            "filename": get_log_path("cleanup_tasks.log"),
+        },
+        "fixtures_file": {
+            "level": "INFO",
+            "class": "logging.FileHandler",
+            "formatter": "verbose",
+            "filename": get_log_path("data_fixtures.log"),
         },
     },
     "loggers": {
-        "email_tasks": {
-            "handlers": ["email_file"],
+        "auth_tasks": {
+            "handlers": ["auth_file"],
             "level": "INFO",
             "propagate": False,
         },
@@ -282,14 +303,15 @@ LOGGING = {
             "level": "INFO",
             "propagate": False,
         },
-        "comment_factory": {
-            "handlers": ["comment_file"],
+        "cleanup_tasks": {
+            "handlers": ["cleanup_file"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "data_fixtures": {
+            "handlers": ["fixtures_file"],
             "level": "INFO",
             "propagate": False,
         },
     },
 }
-
-# handlers — описывают куда и как логировать (файл, консоль, e-mail и т. д.).
-# loggers — описывают что именно логировать (от какого логгера, на каком уровне,
-# с какими обработчиками).

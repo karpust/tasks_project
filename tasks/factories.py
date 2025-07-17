@@ -1,4 +1,3 @@
-import logging
 import random
 from datetime import timedelta
 
@@ -8,8 +7,6 @@ from django.utils import timezone
 from factory import Faker, post_generation
 
 from tasks.models import Category, Comment, Tag, Task, TaskPriority, TaskStatus
-
-logger = logging.getLogger("comment_factory")
 
 User = get_user_model()
 
@@ -112,7 +109,6 @@ class CommentFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Comment
 
-    logger.info("Start to create CommentFactory class")
     text = Faker("sentence")
     created_at = factory.LazyFunction(
         lambda: timezone.now() + timedelta(days=random.randint(-3, 3))
@@ -122,8 +118,6 @@ class CommentFactory(factory.django.DjangoModelFactory):
     @factory.lazy_attribute
     def author(self):
         return self.task.owner  # нужно сразу тк это fk
-
-    logger.info("End to create CommentFactory class")
 
     @post_generation
     def validate_consistency(self, create, extracted, **kwargs):

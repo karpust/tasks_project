@@ -35,11 +35,15 @@ def deadline_notification(self):
         )
         # ищу задачи у которых дедлайн через 24 часа или меньше, не просроченные,
         # еще не уведомлялись
-        logger.info(f"[TASK'S DEADLINE IS {Task.objects.first()}]")
         logger.info(f"[FINDED {tasks.count()} TASKS WITH A CLOSE DEADLINE]")
         for task in tasks:
             users = [task.owner]
             users.extend(task.executor.all())
+
+            logger.info(f"[TASK'S DEADLINE IS '{task.deadline}']")
+            logger.info(
+                f"[USERS THAT MUST BE NOTIFICATED IS {task.owner, task.executor.all()}]"
+            )
 
             for user in users:
                 context = {

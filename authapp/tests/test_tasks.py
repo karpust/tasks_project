@@ -46,7 +46,7 @@ class TestSendEmailConfirmation(TestCase):
             self.assertEqual(mail.outbox[0].to, ["user@email.com"])
             mail.outbox.clear()
 
-    @patch("authapp.tasks.logger")
+    @patch("authapp.tasks.auth_logger")
     @patch(
         "authapp.tasks.EmailMultiAlternatives.send",
         side_effect=Exception("SMTP error"),
