@@ -28,10 +28,9 @@ class UserFactory(factory.django.DjangoModelFactory):
             return
         if extracted:
             group, _ = Group.objects.get_or_create(name=extracted)
-            self.groups.add(group)
         else:
             group, _ = Group.objects.get_or_create(name="user")
-            self.groups.set([group])
+        self.groups.set([group])
 
     @post_generation
     def is_active(self, create, extracted, **kwargs):

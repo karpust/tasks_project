@@ -13,7 +13,7 @@ class TaskAdmin(admin.ModelAdmin):
     list_display = (
         "id",
         "category",
-        "owner",
+        "get_owner_id",
         "get_owner_group",
         "get_executor",
         "status",
@@ -21,6 +21,11 @@ class TaskAdmin(admin.ModelAdmin):
         "notified",
     )
     ordering = ("id",)
+
+    def get_owner_id(self, obj):
+        return obj.owner.id
+
+    get_owner_id.short_description = "Создатель"
 
     def get_executor(self, object):
         return ", ".join([str(executor.id) for executor in object.executor.all()])

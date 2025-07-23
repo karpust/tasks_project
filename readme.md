@@ -4,7 +4,6 @@
 [![codecov](https://codecov.io/github/karpust/tasks_project/branch/improvements/graph/badge.svg?token=CHI6PFCJTO)](https://codecov.io/github/karpust/tasks_project)
 
 
-
 **Task Management API** — это API-сервис для управления задачами с поддержкой ролей, подтверждением email, уведомлениями и асинхронными задачами.
 
 ## Функциональность

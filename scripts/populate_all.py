@@ -1,19 +1,24 @@
-# scripts/populate_all.py
+import logging
 
 from django.core.management import call_command
 
+logger = logging.getLogger("data_fixtures")
+
 
 def run():
-    print("Создаю группы...")
+    print("Cleaning old data...")
+    call_command("runscript", "clear_all")
+
+    print("Creation of groups...")
     call_command("runscript", "populate_groups")
 
-    print("Создаю пользователей...")
+    print("Creation of users...")
     call_command("runscript", "populate_users")
 
-    print("Создаю категории...")
+    print("Creation of categories...")
     call_command("runscript", "populate_tasks")
 
-    print("Создаю задачи...")
+    print("Creation of tasks...")
     call_command("runscript", "populate_comments")
 
-    print("Данные успешно заполнены!")
+    print("The data is successfully filled!")

@@ -1,24 +1,29 @@
+import logging
+
+logger = logging.getLogger("data_fixtures")
+
+
 def run():
-    from django.contrib.auth.models import User
+    from django.contrib.auth.models import Group, User
 
     from tasks.models import Category, Comment, Task
 
-    print("Удаляю комментарии...")
+    logger.info("Removing comments...")
     Comment.objects.all().delete()
 
-    print("Удаляю задачи...")
+    logger.info("Removing tasks...")
     Task.objects.all().delete()
 
-    print("Удаляю категории...")
+    logger.info("Removing categories...")
     Category.objects.all().delete()
 
-    print("Удаляю пользователей...")
+    logger.info("Removing users...")
     User.objects.all().delete()
 
-    # print("Удаляю пользователей (кроме суперпользователя)...")
+    # logger.info("Removing users, except superuser...")
     # User.objects.exclude(is_superuser=True).delete()
 
-    # print("Удаляю группы...")
-    # Group.objects.all().delete()
+    logger.info("Removing groups...")
+    Group.objects.all().delete()
 
-    print("Данные успешно удалены.")
+    logger.info("Data successfully cleaned!")
